@@ -75,14 +75,83 @@ const images = [
 
 const container = document.querySelector('.gallery');
 
+// function imageTemplate(image) {
+//   return `
+//     <li class="item" data-id="${image.id}">
+//       <img
+//         width="360"
+//         src="${image.preview}"
+//         alt="${image.description}"
+//       />
+//     </li>`;
+// }
+
+// function imagesTemplate(images) {
+//   return images.map(imageTemplate).join('\n');
+// }
+
+// function renderTemplate() {
+//   const markup = imagesTemplate(images);
+//   container.innerHTML = markup;
+// }
+
+// renderTemplate();
+
+
+// function openModal(image) {
+//   instance = basicLightbox.create(
+//     `
+//     <div class="modal">
+//         <img src="${image.original}" alt="${image.description}" />
+//     </div>
+//     `,
+//     {
+//       onShow: (instance) => {
+//         console.log('ADD EVENT LISTENER');
+//         window.addEventListener('keydown', handleCloseModal);
+//       },
+//       onClose: (instance) => {
+//         console.log('REMOVE EVENT LISTENER');
+//         window.removeEventListener('keydown', handleCloseModal);
+//       },
+//     }
+//   );
+
+//   instance.show();
+// }
+
+// function closeModal() {
+//   instance.close();
+// }
+
+// function handleCloseModal(e) {
+//   console.log('test');
+//   if (e.code === 'Escape') {
+//     closeModal();
+//   }
+// }
+
+// container.addEventListener('click', e => {
+//   if (e.target === e.currentTarget) return;
+//   const liElem = e.target.closest('li');
+//   const id = liElem.dataset.id;
+//   const product = images.find(el => el.id == id);
+//   openModal(product);
+// });
+
+
 function imageTemplate(image) {
   return `
-    <li class="item" data-id="${image.id}">
-      <img
-        width="360"
-        src="${image.preview}"
-        alt="${image.description}"
-      />
+    <li class="item">
+      <a class="gallery__link" href="${image.original}">
+        <img
+          class="gallery__image"
+          src="${image.preview}"
+          data-source="${image.original}"
+          alt="${image.description}"
+          width="360"
+        />
+      </a>
     </li>`;
 }
 
@@ -97,21 +166,20 @@ function renderTemplate() {
 
 renderTemplate();
 
+let instance = null;
 
-function openModal(image) {
+function openModal(imageSrc, imageAlt) {
   instance = basicLightbox.create(
     `
     <div class="modal">
-        <img src="${image.original}" alt="${image.description}" />
+        <img src="${imageSrc}" alt="${imageAlt}" />
     </div>
     `,
     {
       onShow: (instance) => {
-        console.log('ADD EVENT LISTENER');
         window.addEventListener('keydown', handleCloseModal);
       },
       onClose: (instance) => {
-        console.log('REMOVE EVENT LISTENER');
         window.removeEventListener('keydown', handleCloseModal);
       },
     }
@@ -121,20 +189,24 @@ function openModal(image) {
 }
 
 function closeModal() {
-  instance.close();
+  if (instance) {
+    instance.close();
+  }
 }
 
 function handleCloseModal(e) {
-  console.log('test');
   if (e.code === 'Escape') {
     closeModal();
   }
 }
 
 container.addEventListener('click', e => {
-  if (e.target === e.currentTarget) return;
-  const liElem = e.target.closest('li');
-  const id = liElem.dataset.id;
-  const product = images.find(el => el.id == id);
-  openModal(product);
+  e.preventDefault(); // Щоб <a> не перезавантажував сторінку
+  if (e.target.nodeName !== 'IMG') return;
+
+  const imgElement = e.target;
+  const source = imgElement.dataset.source;
+  const alt = imgElement.alt;
+
+  openModal(source, alt);
 });
